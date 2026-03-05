@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MwM — Estratégia de Marca</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A;
+    --off-white: #F5F4EF;
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --mid: #1A1A1A;
+    --gray: #888;
+    --border: rgba(201,168,76,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 80px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+  }
+
+  .hero-eyebrow {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  .hero-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(5rem, 15vw, 12rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--off-white);
+    opacity: 0;
+    animation: fadeUp 1s ease 0.6s forwards;
+  }
+
+  .hero-logo span {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .hero-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--gray);
+    margin-top: 2rem;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.9s forwards;
+  }
+
+  .hero-sub {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.2s forwards;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-logo span { color: var(--gold); font-style: italic; }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--gold); }
+
+  /* SECTIONS */
+  section {
+    padding: 8rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-number {
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 3rem;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .body-text {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: #BBBAB4;
+    max-width: 680px;
+  }
+
+  .body-text p { margin-bottom: 1.2rem; }
+
+  /* GOLD LINE */
+  .gold-line {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 2rem;
+  }
+
+  /* GRID CARDS */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  .card {
+    background: var(--black);
+    padding: 2.5rem;
+    transition: background 0.3s;
+  }
+
+  .card:hover { background: var(--mid); }
+
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin-bottom: 0.8rem;
+    color: var(--off-white);
+  }
+
+  .card-text {
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--gray);
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    border-left: 2px solid var(--gold);
+    padding: 2rem 2.5rem;
+    margin: 3rem 0;
+    background: rgba(201,168,76,0.04);
+  }
+
+  .highlight-box p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--off-white);
+  }
+
+  /* TWO COL */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; gap: 2rem; }
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 1.5rem; }
+  }
+
+  /* LABEL */
+  .label {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  /* PHASE TIMELINE */
+  .timeline {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 2rem;
+    padding: 2.5rem 0;
+    border-top: 1px solid var(--border);
+    align-items: start;
+    transition: background 0.3s;
+  }
+
+  .phase:last-child { border-bottom: 1px solid var(--border); }
+
+  .phase-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--gold);
+    opacity: 0.4;
+    line-height: 1;
+  }
+
+  .phase-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .phase-text {
+    font-size: 0.8rem;
+    line-height: 1.8;
+    color: var(--gray);
+  }
+
+  /* PRICE TABLE */
+  .price-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .price-label { font-size: 0.8rem; color: #BBBAB4; }
+  .price-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--gold);
+  }
+
+  /* COMPETITOR TABLE */
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    font-size: 0.78rem;
+  }
+
+  .comp-table th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .comp-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    color: #BBBAB4;
+    vertical-align: top;
+  }
+
+  .comp-table tr:last-child td { border-bottom: none; }
+
+  .comp-table tr.highlight-row td {
+    color: var(--off-white);
+    background: rgba(201,168,76,0.05);
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 5rem 2rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  footer .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+  }
+
+  footer .footer-logo span { color: var(--gold); font-style: italic; }
+
+  footer p {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0.3rem 0.2rem;
+  }
+
+  .big-stat {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  .stat-box {
+    background: var(--black);
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">M<span>w</span>M</div>
+  <ul class="nav-links">
+    <li><a href="#posicionamento">Posicionamento</a></li>
+    <li><a href="#dor">Problema</a></li>
+    <li><a href="#proposta">Proposta</a></li>
+    <li><a href="#concorrencia">Concorrência</a></li>
+    <li><a href="#captacao">Captação</a></li>
+    <li><a href="#preco">Preço</a></li>
+    <li><a href="#digital">Digital</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">Estratégia de Marca — 2025</p>
+  <h1 class="hero-logo">M<span>w</span>M</h1>
+  <p class="hero-tagline">Você não precisa ser visto por todos. Só pelos certos.</p>
+  <p class="hero-sub">Marketing de Performance · Parceiro de Crescimento · Bilíngue</p>
+</div>
+
+<!-- 01 POSICIONAMENTO -->
+<section id="posicionamento">
+  <p class="section-number">01 — Posicionamento</p>
+  <h2 class="section-title">Não somos uma <em>agência.</em><br>Somos seu parceiro de crescimento.</h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>A MwM não vende serviços de marketing. Ela vende resultado. Posicionada como parceira operacional de crescimento, a MwM atua ao lado do empreendedor — com responsabilidade compartilhada sobre os números do negócio.</p>
+    <p>Nosso mercado primário são empreendedores brasileiros nos Estados Unidos — donos de empresas de serviços (flooring, cleaning, landscaping) na Flórida e Massachusetts — que dominam o ofício mas precisam dominar o mercado americano.</p>
+  </div>
+
+  <div class="highlight-box">
+    <p>"Agências vendem horas. A MwM vende crescimento — e só prospera quando o cliente prospera."</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <h3 class="card-title">Nicho Primário</h3>
+      <p class="card-text">Empreendedores brasileiros nos EUA. Negócios de serviço com faturamento entre $30K–$150K/mês. Flórida e Massachusetts.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌎</div>
+      <h3 class="card-title">Vantagem Única</h3>
+      <p class="card-text">Bilíngue por natureza. Entende a mentalidade do empreendedor brasileiro — a ambição, o medo, a garra — e traduz isso em estratégia de mercado americano.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📐</div>
+      <h3 class="card-title">Personalidade</h3>
+      <p class="card-text">Precisão intelectual. Clareza radical. Silêncio antes do resultado certo. Fala pouco, entrega muito — como os melhores fazem.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 DOR -->
+<section id="dor">
+  <p class="section-number">02 — A Dor Real</p>
+  <h2 class="section-title">O melhor flooring da cidade.<br><em>Invisível</em> no Google.</h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>O cliente da MwM não tem problema de qualidade. Tem problema de visibilidade. São profissionais excepcionais que construíram negócios sólidos no boca a boca — mas chegaram no teto desse modelo.</p>
+    <p>Eles sabem colocar porcelanato perfeito. Não sabem aparecer para quem procura "flooring near me" às 22h com cartão de crédito na mão.</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <span class="label">As dores que resolvemos</span>
+      <div class="timeline">
+        <div class="phase">
+          <div class="phase-num">→</div>
+          <div>
+            <h4 class="phase-title">Invisibilidade Digital</h4>
+            <p class="phase-text">Negócio existe há 10 anos, não aparece nas primeiras páginas do Google. Concorrentes menores roubam os clientes online.</p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">→</div>
+          <div>
+            <h4 class="phase-title">Dependência de Indicação</h4>
+            <p class="phase-text">100% do faturamento vem de indicações. Quando o fluxo para, o caixa para. Zero previsibilidade.</p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">→</div>
+          <div>
+            <h4 class="phase-title">Barreira de Idioma</h4>
+            <p class="phase-text">Comunicação em inglês para o mercado americano exige confiança que muitos ainda não têm. A MwM é a voz deles no mercado americano.</p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">→</div>
+          <div>
+            <h4 class="phase-title">Falta de Processo</h4>
+            <p class="phase-text">Sem funil. Sem follow-up. Sem sistema. Trabalho excelente, gestão de clientes no improviso.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <span class="label">O que a MwM entrega</span>
+      <br><br>
+      <div class="tag">Geração de Leads</div>
+      <div class="tag">Google Ads</div>
+      <div class="tag">Meta Ads</div>
+      <div class="tag">SEO Local</div>
+      <div class="tag">Google My Business</div>
+      <div class="tag">Funil de Vendas</div>
+      <div class="tag">CRM Setup</div>
+      <div class="tag">Conteúdo Bilíngue</div>
+      <div class="tag">Landing Pages</div>
+      <div class="tag">Reputação Online</div>
+      <div class="tag">Estratégia Digital</div>
+      <div class="tag">Relatórios de Performance</div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 COMUNICAÇÃO -->
+<section id="comunicacao">
+  <p class="section-number">03 — Comunicação Diferente</p>
+  <h2 class="section-title">Sem <em>jargão.</em><br>Sem promessa vazia.</h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>A comunicação da MwM é construída sobre um princípio simples: falar como alguém que já entregou resultado — não como alguém que está tentando vender.</p>
+    <p>Enquanto agências falam em "engajamento", "alcance" e "branding", a MwM fala em leads, agendamentos, faturamento e retorno sobre investimento. A linguagem é de negócio — porque é isso que o cliente quer ouvir.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="label">Tom de Voz</span>
+      <h3 class="card-title">Direto e Intelectual</h3>
+      <p class="card-text">Clareza radical. Sem enrolação. Fala pouco, diz muito. Como um consultor sênior — não como um vendedor ansioso.</p>
+    </div>
+    <div class="card">
+      <span class="label">Canal Principal</span>
+      <h3 class="card-title">Conexão Humana Primeiro</h3>
+      <p class="card-text">Cold call e WhatsApp em português. O primeiro contato é humano, direto e culturalmente familiar. A tecnologia vem depois.</p>
+    </div>
+    <div class="card">
+      <span class="label">Identidade Visual</span>
+      <h3 class="card-title">Preto · Off-White · Dourado</h3>
+      <p class="card-text">Minimalismo de alto nível. Silêncio visual que transmite confiança. Cada elemento tem propósito — nada é decoração.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 04 PREÇO VS VALOR -->
+<section id="valor">
+  <p class="section-number">04 — Preço ou Valor?</p>
+  <h2 class="section-title">A MwM compete<br>exclusivamente por <em>valor.</em></h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>Agências baratas existem aos milhares. A MwM não compete nessa categoria. Compete na categoria onde o cliente pergunta "quanto vou ganhar?" — não "quanto vou pagar?".</p>
+    <p>O modelo de revenue share deixa isso explícito: se o cliente não cresce, a MwM não ganha mais. É a forma mais honesta de alinhar incentivos — e a que mais gera confiança.</p>
+  </div>
+
+  <div class="highlight-box">
+    <p>"Preço é o que você paga. Valor é o que você leva. A MwM é cara — e vale cada centavo."</p>
+  </div>
+</section>
+
+<!-- 05 PROPOSTA DE VALOR -->
+<section id="proposta">
+  <p class="section-number">05 — Proposta de Valor</p>
+  <h2 class="section-title">Seu negócio, <em>visto</em><br>por quem importa.</h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>A MwM transforma negócios de serviço brasileiros nos EUA em máquinas previsíveis de aquisição de clientes — com estratégia digital, execução precisa e responsabilidade compartilhada sobre os resultados.</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <span class="big-stat">$0</span>
+      <span class="stat-label">Taxa fixa no primeiro mês</span>
+    </div>
+    <div class="stat-box">
+      <span class="big-stat">30d</span>
+      <span class="stat-label">Para provar resultado</span>
+    </div>
+    <div class="stat-box">
+      <span class="big-stat">100%</span>
+      <span class="stat-label">Foco em resultado real</span>
+    </div>
+  </div>
+
+  <div class="card-grid" style="margin-top:1px;">
+    <div class="card">
+      <span class="label">Para o cliente</span>
+      <h3 class="card-title">Crescimento Previsível</h3>
+      <p class="card-text">Não depende mais de indicação. Tem um sistema que gera clientes enquanto ele trabalha.</p>
+    </div>
+    <div class="card">
+      <span class="label">Para a MwM</span>
+      <h3 class="card-title">Parceria de Longo Prazo</h3>
+      <p class="card-text">Não é projeto pontual. É relacionamento de crescimento compartilhado — retainer + participação no resultado.</p>
+    </div>
+    <div class="card">
+      <span class="label">Para o mercado</span>
+      <h3 class="card-title">Representação Real</h3>
+      <p class="card-text">Empreendedor brasileiro sendo bem representado no mercado americano. Profissionalismo sem perder a identidade.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 CONCORRÊNCIA -->
+<section id="concorrencia">
+  <p class="section-number">06 — Análise da Concorrência</p>
+  <h2 class="section-title">O mercado está <em>cheio.</em><br>Do jeito errado.</h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>Existem milhares de agências de marketing digital nos EUA. Nenhuma delas combina as três vantagens que definem a MwM: foco no empreendedor brasileiro, modelo de revenue share e presença bilíngue nativa.</p>
+  </div>
+
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Concorrente</th>
+        <th>Nicho</th>
+        <th>Modelo</th>
+        <th>Fraqueza</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Agências Americanas Genéricas</td>
+        <td>Qualquer setor</td>
+        <td>Retainer fixo</td>
+        <td>Não falam português. Não entendem o cliente brasileiro.</td>
+      </tr>
+      <tr>
+        <td>Freelancers Brasileiros no Brasil</td>
+        <td>Variado</td>
+        <td>Projeto por projeto</td>
+        <td>Sem presença no mercado americano. Fuso horário. Sem accountability.</td>
+      </tr>
+      <tr>
+        <td>Agências Latinas nos EUA</td>
+        <td>Hispanic market</td>
+        <td>Retainer</td>
+        <td>Focam no mercado hispânico geral — não no empreendedor brasileiro especificamente.</td>
+      </tr>
+      <tr class="highlight-row">
+        <td><strong>MwM</strong></td>
+        <td><strong>Brasileiro nos EUA</strong></td>
+        <td><strong>Retainer + Revenue Share</strong></td>
+        <td><strong>—</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box" style="margin-top:2rem;">
+    <p>"A MwM não tem concorrente direto. Ocupa um espaço que ninguém estava olhando — e é exatamente aí que está a oportunidade."</p>
+  </div>
+</section>
+
+<!-- 07 CAPTAÇÃO -->
+<section id="captacao">
+  <p class="section-number">07 — Estratégia de Captação</p>
+  <h2 class="section-title">Primeiro cliente<br>em <em>72 horas.</em></h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>A captação da MwM começa com o mais humano possível — uma ligação. Sem automação. Sem anúncio. Sem formulário. Uma pessoa chamando outra em português e falando sobre o negócio dela.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="phase">
+      <div class="phase-num">01</div>
+      <div>
+        <h4 class="phase-title">Mapeamento de Prospects</h4>
+        <p class="phase-text">Identificação de 100 negócios brasileiros na Flórida e Massachusetts via Google Maps, Yelp e grupos de WhatsApp da comunidade. Critério: empresa de serviço, dono brasileiro, presença digital fraca.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">02</div>
+      <div>
+        <h4 class="phase-title">Cold Call em Português</h4>
+        <p class="phase-text">Ligação direta. Script objetivo: identificar a dor em 60 segundos, propor diagnóstico gratuito de 30 minutos. Taxa de conversão alvo: 1 reunião a cada 10 ligações.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">03</div>
+      <div>
+        <h4 class="phase-title">Diagnóstico Gratuito</h4>
+        <p class="phase-text">Reunião de 30 minutos onde a MwM entrega valor antes de vender. Análise do Google My Business, SEO local e presença digital. O cliente sai com clareza — e vontade de contratar.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">04</div>
+      <div>
+        <h4 class="phase-title">Proposta de Performance</h4>
+        <p class="phase-text">Primeiro mês sem taxa fixa — pagamento só sobre resultado gerado. Elimina o risco percebido e força a MwM a entregar rápido. Converte naturalmente em retainer no segundo mês.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">05</div>
+      <div>
+        <h4 class="phase-title">Comunidade e Indicação</h4>
+        <p class="phase-text">Presença ativa em grupos de empreendedores brasileiros. Cada cliente satisfeito vira fonte de indicação. A comunidade brasileira é pequena e bem conectada — uma prova social vale mais que mil anúncios.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 PRECIFICAÇÃO -->
+<section id="preco">
+  <p class="section-number">08 — Precificação</p>
+  <h2 class="section-title">Você cresce.<br><em>A gente cresce junto.</em></h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>O modelo de precificação da MwM é construído para eliminar objeção de entrada e maximizar valor no longo prazo. Três fases que acompanham a evolução do cliente.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="phase">
+      <div class="phase-num">Fase 1</div>
+      <div>
+        <h4 class="phase-title">Performance Entry — Mês 1</h4>
+        <p class="phase-text">Sem taxa fixa. Cobrança apenas sobre resultado comprovado. Elimina objeção de preço e força entrega rápida. Percentual combinado sobre leads ou agendamentos gerados.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">Fase 2</div>
+      <div>
+        <h4 class="phase-title">Retainer + Revenue Share — Mês 2+</h4>
+        <p class="phase-text">Retainer fixo: $1.500–$2.500/mês · Revenue share: 10% sobre o crescimento acima da linha de base do cliente. Exemplo: cliente fatura $50K/mês → escala para $80K → MwM recebe $3K extra além do retainer.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">Fase 3</div>
+      <div>
+        <h4 class="phase-title">Portfólio Seletivo — 8 Clientes</h4>
+        <p class="phase-text">Máximo de 8 clientes em revenue share. Foco total em negócios com real potencial de escala. Receita projetada: 8 × ($2K retainer + $2K revenue share médio) = $32K/mês.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row" style="margin-top:2rem;">
+    <div class="stat-box">
+      <span class="big-stat">$32K</span>
+      <span class="stat-label">Receita mensal alvo</span>
+    </div>
+    <div class="stat-box">
+      <span class="big-stat">$384K</span>
+      <span class="stat-label">Receita anual projetada</span>
+    </div>
+    <div class="stat-box">
+      <span class="big-stat">R$1.9M</span>
+      <span class="stat-label">Equivalente em reais</span>
+    </div>
+  </div>
+</section>
+
+<!-- 09 DIGITAL -->
+<section id="digital">
+  <p class="section-number">09 — Estratégia Digital</p>
+  <h2 class="section-title">Humano na frente.<br><em>IA</em> por baixo.</h2>
+  <div class="gold-line"></div>
+  <div class="body-text">
+    <p>A MwM opera com uma estrutura moderna: decisão humana com execução amplificada por inteligência artificial. Uma equipe enxuta de três pessoas coordena agentes de IA que executam com velocidade e consistência impossíveis de replicar manualmente.</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <span class="label">Para os clientes da MwM</span>
+      <br><br>
+      <div class="card" style="margin-bottom:1px;">
+        <h3 class="card-title">Google Ads + SEO Local</h3>
+        <p class="card-text">Aparecer para quem procura o serviço agora. Google My Business otimizado. Palavras-chave de alta intenção de compra.</p>
+      </div>
+      <div class="card" style="margin-bottom:1px;">
+        <h3 class="card-title">Meta Ads</h3>
+        <p class="card-text">Campanhas de geração de leads no Instagram e Facebook. Segmentação hiperlocal por CEP e comportamento.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Funil + CRM</h3>
+        <p class="card-text">Landing page de alta conversão. Sistema de follow-up automatizado. Nenhum lead deixado para trás.</p>
+      </div>
+    </div>
+    <div>
+      <span class="label">Para a MwM — Infraestrutura</span>
+      <br><br>
+      <div class="card" style="margin-bottom:1px;">
+        <h3 class="card-title">IA como Equipe</h3>
+        <p class="card-text">Copywriter, analista de dados, prospector, criativo — todos executados por agentes de IA supervisionados por humanos.</p>
+      </div>
+      <div class="card" style="margin-bottom:1px;">
+        <h3 class="card-title">Presença no LinkedIn</h3>
+        <p class="card-text">Conteúdo de autoridade em português. Casos de sucesso. Posicionamento como referência para o empreendedor brasileiro nos EUA.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Comunidade Brasileira</h3>
+        <p class="card-text">Grupos de WhatsApp, eventos da comunidade, parceria com contadores e advogados que atendem brasileiros nos EUA.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">M<span>w</span>M</div>
+  <p>Precisão · Crescimento · Resultado</p>
+  <br>
+  <p style="opacity:0.4; font-size:0.55rem;">Estratégia de Marca — Trabalho Acadêmico — 2025</p>
+</footer>
+
+<script>
+  // Intersection Observer for section animations
+  const sections = document.querySelectorAll('section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
